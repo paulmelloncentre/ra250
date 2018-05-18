@@ -100,35 +100,35 @@ class M_common_custom extends M_Common {
 
 // ------------------------------------------------------------------------
 
-	/**
-	 * [get_publications cluster_id]
-	 */
-	public function get_publications($cluster_id){
-		$cluster_id = (int)($cluster_id);
+    /**
+     * [get_publications cluster_id]
+     */
+    public function get_publications($cluster_id){
+        $cluster_id = (int)($cluster_id);
 
-		$query=$this->db->select("
+        $query=$this->db->select("
 				b.*,
 				c.name as typename,
 				e.full_name as actorname
 			")
-			->from("_conf_node node")
-			->join("publication b", "node.id = b.node_id", "left")
-			->join("publication_type c", "b.publication_type_id = c.id", "left")
-			->join("publication_actor_xrefs d", "b.id = d.publication_id", "left")
-			->join("actor e", "d.actor_id = e.id", "left")
-			->where("node.cluster_id", $cluster_id)
-			->order_by("node.id asc");
+            ->from("_conf_node node")
+            ->join("publication b", "node.id = b.node_id", "left")
+            ->join("publication_type c", "b.publication_type_id = c.id", "left")
+            ->join("publication_actor_xrefs d", "b.id = d.publication_id", "left")
+            ->join("actor e", "d.actor_id = e.id", "left")
+            ->where("node.cluster_id", $cluster_id)
+            ->order_by("node.id asc");
 
-		$publications = $query->get()->result();
-		
-		if($publications){
-			foreach($publications as $publication){
-				$id = $publication->id;
+        $publications = $query->get()->result();
 
-				foreach($publication as $key => $value)
-					$publication->{$key} = trim($value);
+        if($publications){
+            foreach($publications as $publication){
+                $id = $publication->id;
 
-				$query=$this->db->select("
+                foreach($publication as $key => $value)
+                    $publication->{$key} = trim($value);
+
+                $query=$this->db->select("
 						a.*,
 						c.full_name as author_name,
 						c.forename as author_forename,
@@ -140,35 +140,47 @@ class M_common_custom extends M_Common {
 						d.name as article_category_name,
 						e.name as bas_review_status_name,
 						f.name as bas_licence_status_name,
-						f.url as bas_licence_status_url
+						f.url as bas_licence_status_url,
+						g.article_category_id as article_category_id,
+						g.text as text
 					")
-					->from("article a")
-					->join("article_actor_xrefs b", "a.id = b.article_id", "left")
-					->join("actor c", "b.actor_id = c.id", "left")
-					->join("article_category d", "a.article_category_id = d.id", "left")
-					->join("bas_review_status e", "a.bas_review_status_id = e.id", "left")
-					->join("bas_licence_status f", "a.bas_licence_status_id = f.id", "left")
-					->where("a.publication_id", $id)
-					->where($this->_online("a"))
-					->order_by("a.id asc");
-				$articles = $query->get()->result();
+                    ->from("article a")
+                    ->join("article_actor_xrefs b", "a.id = b.article_id", "left")
+                    ->join("actor c", "b.actor_id = c.id", "left")
+                    ->join("article_category d", "a.article_category_id = d.id", "left")
+                    ->join("bas_review_status e", "a.bas_review_status_id = e.id", "left")
+                    ->join("bas_licence_status f", "a.bas_licence_status_id = f.id", "left")
+                    ->join("sup_text_article_xrefs g", "g.article_id = a.id", "left")
+                    ->where("a.publication_id", $id)
+                    ->where($this->_online("a"))
+                    ->order_by("a.id asc");
+                $articles = $query->get()->result();
 
-				if($articles){
-					foreach($articles as $article){
-						foreach($article as $key => $value ){
-							if($key!='id')
-								$article->{$key} = trim($value);
-						}
+                if($articles){
+                    foreach($articles as $article){
+                        foreach($article as $key => $value ){
+                            if($key!='id')
+                                $article->{$key} = trim($value);
+                        }
 
-						$article->chapters = $this->get_chapter(array('article_id' => $article->id), true);
+                        $article->chapters = $this->get_chapter(array('article_id' => $article->id), true);
+                        $tagsQuery = $this->db->select("t.name,t.aat_search,t.ulan_search")
+                            ->from('article a')
+                            ->join("article_tag_xrefs x", "x.article_id = a.id")
+                            ->join("tag t", "t.id = x.tag_id")
+                            ->where("a.id", $article->id);
+                        $tags = $tagsQuery->get()->result();
+                        $article->tags = $tags;
+                    }
+                }
 
-					}
-				}
+                $publication->articles = $articles;
+                $pagesQuery = $this->db->select("rank,name,description")->from('page')->where(node_id, 22);
+                $pages = $pagesQuery->get()->result();
+                $publication->pages = $pages;
+            }
+        }
 
-				$publication->articles = $articles;
-			}
-		}
-
-		return $publications;
-	}
+        return $publications;
+    }
 }
