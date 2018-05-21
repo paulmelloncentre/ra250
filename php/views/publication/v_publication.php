@@ -90,24 +90,34 @@
 					<bibliography><?=htmlspecialchars($article->article_reference)?></bibliography>
 				<?endif?>
 				<supplementary_text>
-					<?if(!empty($article->article_category_id)):?>
-						<?=htmlspecialchars($article->article_category_id)?>
-					<?endif?>
-					<?if(!empty($article->text)):?>
-						<?=htmlspecialchars($article->text)?>
-					<?endif?>
+					<type>
+						<?if(!empty($article->article_category_id)):?>
+							<?=htmlspecialchars($article->article_category_id)?>
+						<?endif?>
+					</type>
+					<text>
+						<?if(!empty($article->text)):?>
+							<?=htmlspecialchars($article->text)?>
+						<?endif?>
+					</text>
 				</supplementary_text>
 				<tags>
 					<? foreach ($article->tags as $tag) { ?>
 						<tag>
-							<?if(!empty($tag->name)):?>
-								<?=htmlspecialchars($tag->name)?>
-							<?endif?>
-							<?if(!empty($tag->aat_search)):?>
-								<?=htmlspecialchars($tag->aat_search)?>
-							<?endif?>
-							<?if(!empty($tag->ulan_search)):?>
+							<name>
+								<?if(!empty($tag->name)):?>
+									<?=htmlspecialchars($tag->name)?>
+								<?endif?>
+							</name>
+							<aat_id>
+								<?if(!empty($tag->aat_search)):?>
+									<?=htmlspecialchars($tag->aat_search)?>
+								<?endif?>
+							</aat_id>
+							<ulan_id>
+								<?if(!empty($tag->ulan_search)):?>
 								<?=htmlspecialchars($tag->ulan_search)?>
+							</ulan_id>
 							<?endif?>
 						</tag>
 					<? } ?>
