@@ -116,9 +116,9 @@
 							</aat_id>
 							<ulan_id>
 								<?if(!empty($tag->ulan_search)):?>
-								<?=htmlspecialchars($tag->ulan_search)?>
+									<?=htmlspecialchars($tag->ulan_search)?>	
+								<?endif?>
 							</ulan_id>
-							<?endif?>
 						</tag>
 					<? } ?>
 				</tags>
