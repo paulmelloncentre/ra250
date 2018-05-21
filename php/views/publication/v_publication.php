@@ -111,7 +111,9 @@
 							</name>
 							<aat_id>
 								<?if(!empty($tag->aat_search)):?>
+								<aat_id>
 									<?=htmlspecialchars($tag->aat_search)?>
+									</aat_id>
 								<?endif?>
 							</aat_id>
 							<ulan_id>
